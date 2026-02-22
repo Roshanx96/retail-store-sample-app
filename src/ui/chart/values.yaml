@@ -1,3 +1,37 @@
+# ✅ 1️⃣ Deployment
+# 1 UI Pod will run
+
+# ✅ 2️⃣ Service (ClusterIP)
+# This makes the UI accessible inside the cluster on port 80.
+
+# ✅ 3️⃣ ServiceAccount
+
+# ✅ 4️⃣ ConfigMap
+
+# ❌ 5️⃣ Ingress (Important)
+# ❌ It will NOT create the main ingress block.
+
+# ✅ 6️⃣ ClusterIssuer (Cert Manager)
+# Let’s Encrypt production server
+
+# ❌ 7️⃣ Autoscaling
+# ❌ No HorizontalPodAutoscaler created.
+   
+# ❌ 8️⃣ Istio
+#  ❌ No VirtualService
+#  ❌ No Gateway                                                                                                                                                                                                                         
+
+# 🧠 Final List of What Gets Created
+# Core Resources:
+
+# ✔ Deployment
+# ✔ 1 Pod
+# ✔ Service (ClusterIP)
+# ✔ ServiceAccount
+# ✔ ConfigMap
+# ✔ Possibly 2 Ingress resources
+# ✔ ClusterIssuer (cert-manager)
+
 # Default values for ui.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
@@ -20,11 +54,11 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 podAnnotations: {}
-podSecurityContext:
-  fsGroup: 1000
-securityContext:
-  capabilities:
-    drop:
+podSecurityContext:                      # It controls how the Pod and container run at OS level (Linux permissions, users, capabilities).
+  fsGroup: 1000                          # Run my container as user 1000, not root
+securityContext:                         # Remove all extra privileges.
+  capabilities:                          # Only allow binding to port 80. 
+    drop:                                # Make filesystem read-only.
       - ALL
     add:
       - NET_BIND_SERVICE
@@ -61,6 +95,20 @@ metrics:
 configMap:
   create: true
   name: # if blank this will be generated
+
+#  This section defines the backend service endpoints that your UI application will call inside the Kubernetes cluster.
+
+#    User
+#     ↓
+#  NGINX Ingress
+#     ↓
+#   UI Pod
+#     ↓
+#   UI calls:
+#    → retail-store-catalog
+#    → retail-store-cart-carts
+#    → retail-store-orders
+#    → retail-store-checkout
 app:
   # theme: default
   endpoints:
@@ -127,6 +175,10 @@ ingresses:
           - retail-store.trainwithshubham.com
 
 # Cert Manager Configuration
+# This section configures cert-manager to automatically issue SSL certificates using Let’s Encrypt (production environment).
+# cert-manager is a Kubernetes add-on that: Automatically requests SSL certificates, Renews certificates before expiry, Stores them as Kubernetes Secrets, Works with Ingress
+# In Simple words: Create a Let’s Encrypt production issuer using this email and ACME server, and store the account key in a secret.
+
 certManager:
   createClusterIssuer: true
   email: trainwithshubham@gmail.com
