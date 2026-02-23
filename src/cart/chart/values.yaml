@@ -1,70 +1,88 @@
 # Default values for carts.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+# This is the Helm values.yaml for the Carts microservice of the AWS Retail Store sample app.
 
-replicaCount: 1
+replicaCount: 1   # Runs a single pod replica
+
 image:
   repository: public.ecr.aws/aws-containers/retail-store-sample-cart
-  pullPolicy: Always
+  pullPolicy: Always     # Always pull latest image for this tag
   tag: "1.2.2"
+
 imagePullSecrets:
-  - name: regcred
+  - name: regcred        # Secret used to pull image (if required)
+
 nameOverride: ""
 fullnameOverride: ""
+
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
   # Annotations to add to the service account
   annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
+  # If not set and create is true, a name is generated automatically
   name: ""
+
 podAnnotations: {}
+
 podSecurityContext:
-  fsGroup: 1000
+  fsGroup: 1000   # Ensures mounted volumes are owned by group 1000
+
 securityContext:
   capabilities:
     drop:
-      - ALL
-  readOnlyRootFilesystem: true
-  runAsNonRoot: true
-  runAsUser: 1000
+      - ALL       # Drop all Linux capabilities for security hardening
+  readOnlyRootFilesystem: true   # Prevent writing to container root filesystem
+  runAsNonRoot: true             # Force container to run as non-root user
+  runAsUser: 1000                # Run container with user ID 1000
+
 service:
-  type: ClusterIP
+  type: ClusterIP    # Internal service only (not exposed externally)
   port: 80
+
 resources:
   limits:
     memory: 512Mi
   requests:
     cpu: 256m
     memory: 512Mi
+
 autoscaling:
-  enabled: false
+  enabled: false     # Horizontal Pod Autoscaler disabled
   minReplicas: 1
   maxReplicas: 10
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
+
 nodeSelector: {}
 tolerations: []
 affinity: {}
 topologySpreadConstraints: []
-metrics:
+
+metrics:   # 👉 Enables Prometheus scraping (pull model)
   enabled: true
   podAnnotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "8080"
-    prometheus.io/path: "/actuator/prometheus"
+    prometheus.io/scrape: "true"          # “Yes, scrape this pod.”
+    prometheus.io/port: "8080"            # Metrics exposed on port 8080
+    prometheus.io/path: "/actuator/prometheus"  # Spring Boot Actuator metrics endpoint
+
 configMap:
   create: true
   name:
+
+# By default, data is stored in memory.
+# If the pod restarts and using in-memory → cart data is lost.
+
 app:
   persistence:
-    provider: in-memory
+    provider: in-memory      # 👉 To use DynamoDB, change provider to appropriate value
     dynamodb:
-      tableName: Items
-      createTable: false
+      tableName: Items       # DynamoDB table name (if enabled)
+      createTable: false     # Will NOT auto-create table
+
 dynamodb:
-  create: false
+  create: false              # 👉 No DynamoDB Local pod will be created
   image:
     repository: public.ecr.aws/aws-dynamodb-local/aws-dynamodb-local
     pullPolicy: IfNotPresent
@@ -76,10 +94,12 @@ dynamodb:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+
 opentelemetry:
-  enabled: false
+  enabled: false             # Distributed tracing disabled
   instrumentation: ""
+
 podDisruptionBudget:
-  enabled: false
+  enabled: false             # No PDB protection
   minAvailable: 2
   maxUnavailable: 1
