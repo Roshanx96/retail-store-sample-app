@@ -1,25 +1,46 @@
+# Helm chart API version (v2 = Helm 3)
 apiVersion: v2
+
+# Name of the parent (umbrella) chart
 name: retail-store-sample-chart
+
+# Description of what this chart deploys
 description: A Helm chart for the AWS retail store containers sample application
+
+# Type of chart (application = deployable chart, not a library)
 type: application
+
+# Version of this Helm chart (NOT the Docker image version)
 version: 1.2.2
+
+# List of subcharts (microservices) that this parent chart depends on
 dependencies:
-  - name: retail-store-sample-cart-chart
-    alias: cart
-    version: 1.2.2
-    repository: file://../../cart/chart
+
+  # Cart microservice chart
+  - name: retail-store-sample-cart-chart   # Actual chart name
+    alias: cart                            # Alias used in values.yaml
+    version: 1.2.2                         # Chart version
+    repository: file://../../cart/chart    # Local path to cart chart
+
+  # Catalog microservice chart
   - name: retail-store-sample-catalog-chart
     alias: catalog
     version: 1.2.2
     repository: file://../../catalog/chart
+
+  # Checkout microservice chart
   - name: retail-store-sample-checkout-chart
     alias: checkout
     version: 1.2.2
     repository: file://../../checkout/chart
+
+  # Orders microservice chart
   - name: retail-store-sample-orders-chart
     alias: orders
     version: 1.2.2
     repository: file://../../orders/chart
+
+  # UI frontend chart
   - name: retail-store-sample-ui-chart
     alias: ui
     version: 1.2.2
