@@ -61,15 +61,15 @@ configMap:                              # create a ConfigMap for application con
 # this section controls how the Orders service stores data and sends messages.
 #   persistence   → database
 #   messaging     → message broker
-#   👉 It will NOT create a database, RabbitMQ. It only uses in-memory storage
 
+#👉 It will NOT create a database, RabbitMQ. It only uses in-memory storage
 #It runs:
 #🧠 In-memory database (inside the Orders container) 🧠 In-memory messaging (inside the same container)
 #So everything lives only in RAM. If the pod restarts → all data is lost.
 
 app:
   persistence:
-    provider: 'in-memory'
+    provider: 'in-memory'             # 🧠 To create PostgreSQL, provider: postgresql
     endpoint: ''
     database: 'orders'
     secret:                           # 👉 Create a Kubernetes Secret for DB credentials.
@@ -77,8 +77,8 @@ app:
       name: orders-db
       username: orders
       password: ""
-  messaging:
-    provider: 'in-memory'
+  messaging:                         
+    provider: 'in-memory'             # 🧠 To create rabbitmq, provider: rabbitmq
     rabbitmq:
       addresses: []
       secret:
@@ -86,7 +86,7 @@ app:
         name: orders-rabbitmq
         username: ""
         password: ""
-postgresql:                         # ❌ No PostgreSQL pod created
+postgresql:                         # ❌ No PostgreSQL pod created || # 🧠 To create PostgreSQL, create: true
   create: false
   image:
     repository: public.ecr.aws/docker/library/postgres
@@ -107,7 +107,7 @@ postgresql:                         # ❌ No PostgreSQL pod created
       - ReadWriteOnce
     size: 10Gi
     # storageClass: gp2
-rabbitmq:
+rabbitmq:                          # ❌ No rabbitmq pod created ||   # 🧠 To create rabbitmq, create: true
   create: false
   image:
     repository: public.ecr.aws/docker/library/rabbitmq
@@ -142,26 +142,3 @@ podDisruptionBudget:
   minAvailable: 2
   maxUnavailable: 1
 
-
-# 👉 To create PostgreSQL:
-#    You must set:
-
-# postgresql:
-#   create: true
-
-# And change:
-
-# persistence:
-#   provider: postgresql
-
-
-# 👉 To create RabbitMQ:
-#    You must set:
-
-# rabbitmq:
-#   create: true
-
-# And change:
-
-# messaging:
-#   provider: rabbitmq
