@@ -1,3 +1,23 @@
+# ArgoCD,
+# For this project:
+
+# • Only use this GitHub repo
+# • Only deploy into retail-store namespace
+# • Only create these types of resources
+# • Nothing else
+
+# This YAML is the same thing you would configure in the ArgoCD UI under:
+# Settings → Projects → New Project
+# Instead of clicking in the UI, you are defining it as code (YAML).
+
+# 🧠 Simple Explanation
+
+# 👉 In UI → you configure project settings manually
+# 👉 In YAML → you configure project settings using Git
+# Both do the same thing.
+
+
+
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
