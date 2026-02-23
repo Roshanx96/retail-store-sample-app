@@ -1,74 +1,92 @@
 # Default values for catalog.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+# This is the Helm values.yaml for the Catalog microservice of the AWS Retail Store sample app.
 
 replicaCount: 1
+
 image:
   repository: public.ecr.aws/aws-containers/retail-store-sample-catalog
   pullPolicy: Always
   tag: "1.2.2"
+
 imagePullSecrets:
   - name: regcred
+
 nameOverride: ""
 fullnameOverride: ""
+
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
   # Annotations to add to the service account
   annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
+  # If not set and create is true, a name is generated automatically
   name: ""
+
 podAnnotations: {}
+
 podSecurityContext:
-  fsGroup: 1000
+  fsGroup: 1000   # Ensures mounted volumes are owned by group 1000
+
 securityContext:
   capabilities:
     drop:
-      - ALL
-  readOnlyRootFilesystem: true
-  runAsNonRoot: true
-  runAsUser: 1000
+      - ALL       # Drop all Linux capabilities for security hardening
+  readOnlyRootFilesystem: true   # Prevents writing to container root filesystem
+  runAsNonRoot: true             # Forces container to run as non-root
+  runAsUser: 1000                # Runs container as user ID 1000
+
 service:
-  type: ClusterIP
+  type: ClusterIP   # Internal service only (not publicly exposed)
   port: 80
+
 resources:
   limits:
     memory: 256Mi
   requests:
     cpu: 256m
     memory: 256Mi
+
 autoscaling:
-  enabled: false
+  enabled: false     # Horizontal Pod Autoscaler disabled
   minReplicas: 1
   maxReplicas: 10
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
+
 nodeSelector: {}
 tolerations: []
 affinity: {}
 topologySpreadConstraints: []
-metrics:
+
+metrics:   # 👉 Enables Prometheus scraping (pull model)
   enabled: true
   podAnnotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "8080"
-    prometheus.io/path: "/metrics"
+    prometheus.io/scrape: "true"     # “Yes, scrape this pod.”
+    prometheus.io/port: "8080"       # Metrics exposed on port 8080
+    prometheus.io/path: "/metrics"   # Metrics endpoint path
+
 configMap:
   create: true
   name:
+
+# Everything is stored in container memory unless MySQL is enabled.
+# If pod restarts and using in-memory → data is lost.
+
 app:
   persistence:
-    provider: in-memory
+    provider: in-memory     # 👉 To use MySQL, change to "provider: mysql"
     endpoint: ""
     database: "catalog"
     secret:
-      create: true
+      create: true          # Creates Kubernetes Secret for DB credentials
       name: catalog-db
       username: catalog
       password: ""
-mysql:
-  create: false
+
+mysql:                      # 👉 To create MySQL, set create: true
+  create: false             # Currently NO MySQL will be created
   image:
     repository: public.ecr.aws/docker/library/mysql
     pullPolicy: IfNotPresent
@@ -81,20 +99,23 @@ mysql:
   tolerations: []
   affinity: {}
   persistentVolume:
-    enabled: false
+    enabled: false          # No persistent storage unless enabled
     annotations: {}
     labels: {}
     accessModes:
       - ReadWriteOnce
     size: 10Gi
     storageClass: ""
+
 securityGroups:
   create: false
   securityGroupIds: []
+
 opentelemetry:
-  enabled: false
+  enabled: false            # Distributed tracing disabled
   instrumentation: ""
+
 podDisruptionBudget:
-  enabled: false
+  enabled: false            # No PDB protection
   minAvailable: 2
   maxUnavailable: 1
