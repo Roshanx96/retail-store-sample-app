@@ -1,31 +1,62 @@
+# =====================================
+# CART SERVICE - Enable DynamoDB
+# =====================================
 cart:
   app:
     persistence:
+      # Change persistence provider from in-memory to DynamoDB
       provider: dynamodb
+
   dynamodb:
+    # If true, Helm will deploy a DynamoDB container
     create: true
 
+
+# =====================================
+# CATALOG SERVICE - Enable MySQL
+# =====================================
 catalog:
   app:
     persistence:
+      # Use MySQL instead of in-memory storage
       provider: 'mysql'
+
   mysql:
+    # If true, Helm will deploy a MySQL container
     create: true
 
+
+# =====================================
+# CHECKOUT SERVICE - Enable Redis
+# =====================================
 checkout:
   app:
     persistence:
+      # Use Redis for data storage
       provider: redis
+
   redis:
+    # If true, Helm will deploy a Redis container
     create: true
 
+
+# =====================================
+# ORDERS SERVICE - Enable PostgreSQL + RabbitMQ
+# =====================================
 orders:
   app:
     persistence:
+      # Use PostgreSQL database
       provider: 'postgres'
+
     messaging:
+      # Use RabbitMQ for messaging/events
       provider: 'rabbitmq'
+
   postgresql:
+    # If true, Helm will deploy PostgreSQL container
     create: true
+
   rabbitmq:
+    # If true, Helm will deploy RabbitMQ container
     create: true
