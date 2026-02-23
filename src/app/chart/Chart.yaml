@@ -1,46 +1,74 @@
-# Helm chart API version (v2 = Helm 3)
+# ============================================================
+# This is the Parent (Umbrella) Helm Chart
+# ============================================================
+# Installing this chart will automatically install
+# all the microservices listed under "dependencies".
+#
+# That means you only need ONE Helm command like:
+#   helm install retail ./chart
+#
+# Helm will:
+# 1. Read this Chart.yaml
+# 2. Load all dependent microservice charts
+# 3. Merge values files
+# 4. Deploy all Kubernetes resources together
+#
+# So you DO NOT need to run helm install
+# separately for each microservice.
+# ============================================================
+
 apiVersion: v2
 
-# Name of the parent (umbrella) chart
+# Name of the umbrella (parent) chart
 name: retail-store-sample-chart
 
-# Description of what this chart deploys
+# Description of the full application
 description: A Helm chart for the AWS retail store containers sample application
 
-# Type of chart (application = deployable chart, not a library)
+# Type = application (means this chart deploys workloads)
 type: application
 
-# Version of this Helm chart (NOT the Docker image version)
+# Chart version (not Docker image version)
 version: 1.2.2
 
-# List of subcharts (microservices) that this parent chart depends on
+# ============================================================
+# Dependencies Section
+# ============================================================
+# These are subcharts (microservices).
+# When this parent chart is installed,
+# Helm automatically installs ALL of them.
+#
+# Each microservice has its own:
+# - Deployment
+# - Service
+# - ConfigMaps
+# - Databases (if enabled in values file)
+#
+# This is why one helm install command
+# deploys the entire microservice architecture.
+# ============================================================
+
 dependencies:
+  - name: retail-store-sample-cart-chart
+    alias: cart
+    version: 1.2.2
+    repository: file://../../cart/chart
 
-  # Cart microservice chart
-  - name: retail-store-sample-cart-chart   # Actual chart name
-    alias: cart                            # Alias used in values.yaml
-    version: 1.2.2                         # Chart version
-    repository: file://../../cart/chart    # Local path to cart chart
-
-  # Catalog microservice chart
   - name: retail-store-sample-catalog-chart
     alias: catalog
     version: 1.2.2
     repository: file://../../catalog/chart
 
-  # Checkout microservice chart
   - name: retail-store-sample-checkout-chart
     alias: checkout
     version: 1.2.2
     repository: file://../../checkout/chart
 
-  # Orders microservice chart
   - name: retail-store-sample-orders-chart
     alias: orders
     version: 1.2.2
     repository: file://../../orders/chart
 
-  # UI frontend chart
   - name: retail-store-sample-ui-chart
     alias: ui
     version: 1.2.2
