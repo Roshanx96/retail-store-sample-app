@@ -1,6 +1,7 @@
 # Default values for checkout.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+# This is the Helm values.yaml for the Checkout microservice of the AWS Retail Store sample app.
 
 replicaCount: 1
 image:
@@ -48,23 +49,24 @@ nodeSelector: {}
 tolerations: []
 affinity: {}
 topologySpreadConstraints: []
-metrics:
+metrics:                               # 👉 It tells Prometheus to scrape (pull) metrics from the pod.
   enabled: true
   podAnnotations:
-    prometheus.io/scrape: 'true'
-    prometheus.io/port: '8080'
-    prometheus.io/path: '/metrics'
+    prometheus.io/scrape: 'true'      # “Yes, you should scrape this pod.”
+    prometheus.io/port: '8080'        # “Metrics are exposed on port 8080.”
+    prometheus.io/path: '/metrics'    # “The metrics endpoint is available at /metrics.”
 configMap:
   create: true
   name:
+# Everything is stored inside container memory. || If pod restart data lost.
 app:
   persistence:
-    provider: 'in-memory'
+    provider: 'in-memory'                            #👉 If you wanted Redis, you'd need  "provider: redis"
     redis:
       endpoint: ''
   endpoints:
     orders: http://retail-store-orders:80
-redis:
+redis:                                               #👉 If you wanted Redis, you'd need  "create: true"
   create: false
   image:
     repository: public.ecr.aws/docker/library/redis
