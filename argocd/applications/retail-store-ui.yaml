@@ -1,25 +1,59 @@
+# ==========================================================
+# ArgoCD Application for Retail Store UI Service
+# This tells ArgoCD to deploy the UI Helm chart automatically
+# ==========================================================
+
 apiVersion: argoproj.io/v1alpha1
 kind: Application
+
 metadata:
+  # Name of the application inside ArgoCD
   name: retail-store-ui
+  
+  # Namespace where ArgoCD is installed
   namespace: argocd
+  
   annotations:
+    # Sync wave controls deployment order
+    # Higher number = deploy later
+    # Example: Databases (0), Backend (1), UI (2)
     argocd.argoproj.io/sync-wave: "2"
+
 spec:
+  # Reference to the AppProject this application belongs to
   project: retail-store
+
   source:
+    # Git repository URL where Helm chart exists
     repoURL: https://github.com/LondheShubham153/retail-store-sample-app
+    
+    # Branch to track
     targetRevision: main
+    
+    # Path inside repository where Helm chart is located
     path: src/ui/chart
+    
     helm:
+      # Helm values file to use during deployment
       valueFiles:
         - values.yaml
+
   destination:
+    # Kubernetes cluster API server (default = same cluster)
     server: https://kubernetes.default.svc
+    
+    # Namespace where UI will be deployed
     namespace: retail-store
+
   syncPolicy:
     automated:
+      # If a resource is removed from Git, delete it from cluster
       prune: true
+      
+      # If someone manually changes resource in cluster,
+      # ArgoCD will revert it back to Git state
       selfHeal: true
+
     syncOptions:
-      - CreateNamespace=true 
+      # Automatically create namespace if it does not exist
+      - CreateNamespace=true
