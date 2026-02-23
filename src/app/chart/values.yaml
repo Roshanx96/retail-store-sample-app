@@ -1,23 +1,56 @@
+# ===============================
+# CART SERVICE CONFIGURATION
+# ===============================
 cart:
+  # Overrides the full generated Kubernetes resource name
+  # Instead of long Helm-generated name, service will be called "carts"
   fullnameOverride: carts
 
+
+# ===============================
+# CATALOG SERVICE CONFIGURATION
+# ===============================
 catalog:
+  # Override service name to "catalog"
   fullnameOverride: catalog
 
+
+# ===============================
+# CHECKOUT SERVICE CONFIGURATION
+# ===============================
 checkout:
+  # Override service name
   fullnameOverride: checkout
+
+  # Application-specific configuration
   retail:
     checkout:
       endpoints: 
+        # URL for Orders service inside Kubernetes cluster
+        # Service-to-service communication using K8s DNS
         orders: http://orders:80
 
+
+# ===============================
+# ORDERS SERVICE CONFIGURATION
+# ===============================
 orders:
+  # Override service name
   fullnameOverride: orders
 
+
+# ===============================
+# UI (FRONTEND) CONFIGURATION
+# ===============================
 ui:
+  # Override service name
   fullnameOverride: ui
+
   app:
     endpoints:
+      # Backend service endpoints used by UI
+      # These are internal Kubernetes service names
+
       catalog: http://catalog:80
       carts: http://carts:80
       checkout: http://checkout:80
