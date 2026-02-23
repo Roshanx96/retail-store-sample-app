@@ -1,3 +1,11 @@
+# Cart → DynamoDB
+# Catalog → MySQL
+# Checkout → Redis
+# Orders → PostgreSQL + RabbitMQ
+# Production-ready setup
+
+# 🔵 For Production / Stateful: "helm install retail ./chart -f values-stateful.yaml"
+
 # =====================================
 # CART SERVICE - Enable DynamoDB
 # =====================================
